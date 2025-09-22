@@ -55,7 +55,7 @@ therm_site_sf_B <- therm_site_sf %>%
 
 
 gps_sf <- gps_sf %>%
-  mutate(color = ifelse(time < as_hms("12:00:00"), "blue", "green"))
+  mutate(color = ifelse(time < as_hms("12:00:00"), "blue", "yellow"))
 
 leaflet() %>%
   addProviderTiles(providers$Esri.WorldImagery) %>%
