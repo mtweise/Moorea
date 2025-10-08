@@ -52,7 +52,8 @@ therm_site_sf_B <- therm_site_sf %>%
 #moorea_bbox <- st_bbox(c(xmin = -150, xmax = -149.75, ymin = -17.6, ymax = -17.45), crs = st_crs(4326))
 #moorea_basemap <- get_tiles(moorea_bbox, provider = "OpenStreetMap", crop = TRUE, zoom = 13)
 
-
+therm_site_sf_B_filtered <- therm_site_sf_B %>%
+  filter(site %in% c("B01", "B06", "B32", "B09", "B35"))
 
 gps_sf <- gps_sf %>%
   mutate(color = ifelse(time < as_hms("12:00:00"), "blue", "yellow"))
@@ -69,7 +70,7 @@ leaflet() %>%
   
   # therm_sites in a third color (red)
   addCircleMarkers(
-    data = therm_site_sf_B,
+    data = therm_site_sf_B_filtered,
     color = "red",
     radius = 3,
     label = ~site,   # use the site column for labels
@@ -83,14 +84,47 @@ leaflet() %>%
 
 
 
-
-
-
-
-
-
-
-
-
-
+#trying to fix labels
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldImagery) %>%
+  
+  # gps_sf points, colored by time
+  addCircleMarkers(
+    data = gps_sf,
+    color = ~color,
+    radius = 2
+  ) %>%
+  
+  # therm_sites points
+  addCircleMarkers(
+    data = therm_site_sf_B_filtered,
+    color = "red",
+    radius = 3
+  ) %>%
+  
+  # add labels separately with connecting lines
+  addLabelOnlyMarkers(
+    data = therm_site_sf_B_filtered,
+    label = ~site,
+    labelOptions = labelOptions(
+      noHide = TRUE,
+      direction = "auto",
+      textsize = "12px",
+      style = list(
+        "color" = "white",
+        "font-weight" = "bold",
+        "text-shadow" = "1px 1px 2px black",
+        "background-color" = "rgba(0,0,0,0.4)",
+        "padding" = "2px 4px",
+        "border-radius" = "4px",
+        "box-shadow" = "0 0 3px rgba(0,0,0,0.5)"
+      ),
+      textOnly = TRUE,   # ensures no arrow/connector
+      opacity = 1,
+      sticky = FALSE,    # turns off arrow/leader line
+      offset = c(0, -30) # offset label from marker
+    )
+  ) %>%
+  
+  setView(lng = -149.82, lat = -17.53, zoom = 13)
 
