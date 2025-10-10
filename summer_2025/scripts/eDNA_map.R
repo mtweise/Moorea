@@ -128,3 +128,8 @@ leaflet() %>%
   
   setView(lng = -149.82, lat = -17.53, zoom = 13)
 
+
+# "red" = Thermistor site
+# "blue" = Morning samples
+# "yellow" = Afternoon samples 
+
