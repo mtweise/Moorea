@@ -9,6 +9,7 @@ library(tidyverse)
 library(tidyr)
 library(ggplot2)
 library(dplyr)
+library(car)
 
 ##read in data
 concentrations_raw <- read_csv(here("summer_2025/data", "eDNA_extractions.csv")) |>
@@ -25,19 +26,20 @@ concentrations_clean <- concentrations_raw %>%
   )
 
 
+#check ANOVA assumptions (chris levene's test)
 
-#concentrations_raw$collection_site <- as.factor(concentrations_raw$collection_site)
-#concentrations_raw$Time <- as.factor(concentrations_raw$Time)
+leveneTest(dna_yield ~ collection_site * Time, data = concentrations_clean)
 
 #ANOVA
 anova_model <- aov(dna_yield ~ collection_site * Time, data = concentrations_clean)
 summary(anova_model)
 
 
-#check assumptions
+#check assumptions (chat gpt)
 par(mfrow = c(1, 2))
 plot(anova_model, which = 1)  # Residuals vs fitted (homogeneity)
 plot(anova_model, which = 2)  # Q-Q plot (normality)
+
 
 
 
