@@ -60,7 +60,9 @@ ggplot(concentrations_clean %>% dplyr::filter(!is.na(Time), !is.na(dna_yield)),
   theme_minimal() +
   theme(
     strip.text = element_text(size = 12, face = "bold"),
-    legend.position = "none"
+    legend.position = "none",
+    axis.title = element_text(size = 16),   # X and Y axis titles
+    axis.text = element_text(size = 14)     # Tick labels
   )
 
 
