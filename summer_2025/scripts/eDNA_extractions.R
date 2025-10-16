@@ -46,7 +46,7 @@ TukeyHSD(anova_model)
 
 
 # plot
-ggplot(concentrations_clean %>% dplyr::filter(!is.na(Time), !is.na(dna_yield)), 
+committee_meeting_fig <- ggplot(concentrations_clean %>% dplyr::filter(!is.na(Time), !is.na(dna_yield)), 
        aes(x = Time, y = dna_yield, fill = Time)) +
   geom_boxplot() +
   facet_wrap(~ collection_site) +
@@ -65,6 +65,7 @@ ggplot(concentrations_clean %>% dplyr::filter(!is.na(Time), !is.na(dna_yield)),
     axis.text = element_text(size = 14)     # Tick labels
   )
 
-
+ggsave(here("summer_2025/figures", "committee_fig.jpg"), committee_meeting_fig, dpi=500,
+       width=10, height=5, unit="in")
 
 
