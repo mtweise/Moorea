@@ -8,25 +8,29 @@ library(here)
 library(tidyverse)
 library(tidyr)
 library(ggplot2)
+library(dplyr)
 
 ##read in data
 concentrations_raw <- read_csv(here("summer_2025/data", "eDNA_extractions.csv")) |>
   clean_names()
 
-#add mroning/afternoon column
+#add morning/afternoon column
+concentrations_clean <- concentrations_raw %>%
+  mutate(Time = ifelse(grepl("1[A-Za-z]?$", sample_code), "Morning",
+                       ifelse(grepl("2[A-Za-z]?$", sample_code), "Afternoon", NA))) %>%
+  select(sample_code, collection_site, dna_yield, Time) %>%
+  mutate(
+    Time = factor(Time, levels = c("Morning", "Afternoon")),
+    collection_site = factor(collection_site)
+  )
 
-# Create Time variable based on the number after site
-concentrations_raw$Time <- ifelse(grepl("1[A-Za-z]?$", concentrations_raw$sample_code), "Morning",
-                  ifelse(grepl("2[A-Za-z]?$", concentrations_raw$sample_code), "Afternoon", NA))
 
-concentrations_raw$Time <- factor(concentrations_raw$Time, levels = c("Morning", "Afternoon"))
-concentrations_raw$collection_site <- factor(concentrations_raw$collection_site)
 
-concentrations_raw$collection_site <- as.factor(concentrations_raw$collection_site)
-concentrations_raw$Time <- as.factor(concentrations_raw$Time)
+#concentrations_raw$collection_site <- as.factor(concentrations_raw$collection_site)
+#concentrations_raw$Time <- as.factor(concentrations_raw$Time)
 
 #ANOVA
-anova_model <- aov(dna_yield ~ collection_site * Time, data = concentrations_raw)
+anova_model <- aov(dna_yield ~ collection_site * Time, data = concentrations_clean)
 summary(anova_model)
 
 
@@ -41,11 +45,13 @@ plot(anova_model, which = 2)  # Q-Q plot (normality)
 TukeyHSD(anova_model)
 
 
-#plot
-ggplot(concentrations_raw, aes(x = Time, y = dna_yield, fill = Time)) +
+# plot
+ggplot(concentrations_clean %>% dplyr::filter(!is.na(Time), !is.na(dna_yield)), 
+       aes(x = Time, y = dna_yield, fill = Time)) +
   geom_boxplot() +
   facet_wrap(~ collection_site) +
   stat_summary(fun = mean, geom = "point", shape = 20, size = 3, color = "black") +
+  scale_fill_manual(values = c("Morning" = "lightblue", "Afternoon" = "lightyellow")) +
   labs(
     x = "Time of Day",
     y = "DNA Yield",
@@ -56,6 +62,7 @@ ggplot(concentrations_raw, aes(x = Time, y = dna_yield, fill = Time)) +
     strip.text = element_text(size = 12, face = "bold"),
     legend.position = "none"
   )
+
 
 
 
