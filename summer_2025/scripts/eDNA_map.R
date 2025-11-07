@@ -133,3 +133,87 @@ leaflet() %>%
 # "blue" = Morning samples
 # "yellow" = Afternoon samples 
 
+
+##############################################
+#clean map of just the therm sites
+
+# Clean environment
+rm(list = ls())
+
+# Load libraries
+library(tidyverse)
+library(sf)
+library(here)
+library(janitor)
+library(rnaturalearth)
+library(ggspatial)
+library(ggrepel)
+library(maptiles)
+
+# --- Read data ---
+therm_sites <- read_csv(here("summer_2025/data", "MCR_thermistor_sites.csv")) |>
+  clean_names()
+
+# Convert to sf
+therm_site_sf <- st_as_sf(
+  therm_sites,
+  coords = c("lon_3", "lat_2"),
+  crs = 4326,
+  remove = FALSE
+)
+
+# Filter to your 5 thermistor sites
+therm_filtered <- therm_site_sf |>
+  filter(site %in% c("B01", "B06", "B32", "B09", "B35"))
+
+# --- Define Moorea bounding box ---
+moorea_bbox <- st_bbox(c(xmin = -150, xmax = -149.7, ymin = -17.63, ymax = -17.45), crs = st_crs(4326))
+
+# --- Get basemap tiles ---
+# you can also try: "CartoDB.Positron" or "Stamen.TerrainBackground"
+moorea_basemap <- get_tiles(moorea_bbox, provider = "Esri.WorldImagery", zoom = 13)
+
+# --- Plot ---
+ggplot() +
+  layer_spatial(moorea_basemap) +
+  geom_sf(
+    data = therm_filtered,
+    color= "red",
+    size = 3.2,
+    shape = 21,
+    fill = "red",
+    stroke = 1
+  ) +
+  geom_label_repel(
+    data = therm_filtered,
+    aes(label = site, geometry = geometry),
+    stat = "sf_coordinates",
+    size = 4,
+    family = "sans",
+    nudge_y = 0.002,
+    box.padding = 0.4
+  ) +
+  annotation_scale(location = "bl", width_hint = 0.3, text_col = "white",
+                   line_col = "white",
+                   tick_col = "white") +
+  annotation_north_arrow(location = "tl", which_north = "true", style = north_arrow_fancy_orienteering (
+    text_col = "white",
+    fill = c("white", "gray40")
+  )) +
+  coord_sf(
+    xlim = c(-149.94, -149.74),
+    ylim = c(-17.615, -17.46),
+    expand = FALSE
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.title = element_blank(),
+    legend.position = "none",
+    plot.margin = margin(10, 10, 10, 10)
+  ) +
+  ggtitle("Proposed Thermistor Sites")
+
+
+
