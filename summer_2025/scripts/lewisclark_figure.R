@@ -62,72 +62,7 @@ temp_data <- temp_data |>
 
 
 ##############################################
-#clean map of just the therm sites
-
-# --- Read data ---
-therm_sites <- read_csv(here("summer_2025/data", "MCR_thermistor_sites.csv")) |>
-  clean_names()
-
-# Convert to sf
-therm_site_sf <- st_as_sf(
-  therm_sites,
-  coords = c("lon_3", "lat_2"),
-  crs = 4326,
-  remove = FALSE
-)
-
-# Filter to your 5 thermistor sites
-therm_filtered <- therm_site_sf |>
-  filter(site %in% c("B01", "B06", "B32", "B09", "B35"))
-
-# --- Define Moorea bounding box ---
-moorea_bbox <- st_bbox(c(xmin = -150, xmax = -149.7, ymin = -17.63, ymax = -17.45), crs = st_crs(4326))
-
-# --- Get basemap tiles ---
-# you can also try: "CartoDB.Positron" or "Stamen.TerrainBackground"
-moorea_basemap <- get_tiles(moorea_bbox, provider = "Esri.WorldImagery", zoom = 13)
-
-# --- Plot ---
-ggplot() +
-  layer_spatial(moorea_basemap) +
-  geom_sf(
-    data = therm_filtered,
-    color= "red",
-    size = 3.2,
-    shape = 21,
-    fill = "red",
-    stroke = 1
-  ) +
-  geom_label_repel(
-    data = therm_filtered,
-    aes(label = site, geometry = geometry),
-    stat = "sf_coordinates",
-    size = 4,
-    family = "sans",
-    nudge_y = 0.002,
-    box.padding = 0.4
-  ) +
-  annotation_scale(location = "bl", width_hint = 0.3, text_col = "white",
-                   line_col = "white",
-                   tick_col = "white") +
-  annotation_north_arrow(location = "tl", which_north = "true", style = north_arrow_fancy_orienteering (
-    text_col = "white",
-    fill = c("white", "gray40")
-  )) +
-  coord_sf(
-    xlim = c(-149.94, -149.74),
-    ylim = c(-17.615, -17.46),
-    expand = FALSE
-  ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.title = element_blank(),
-    legend.position = "none",
-    plot.margin = margin(10, 10, 10, 10)
-  ) +
-  ggtitle("Proposed Thermistor Sites")
+#clean map of just 
 
 ######################### 
 #attempt 1
@@ -174,56 +109,6 @@ moorea_bbox <- st_bbox(c(xmin = -150, xmax = -149.7, ymin = -17.63, ymax = -17.4
 # Get basemap
 moorea_basemap <- get_tiles(moorea_bbox, provider = "Esri.WorldImagery", zoom = 13)
 
-# Plot
-p <- ggplot() +
-  layer_spatial(moorea_basemap) +
-  
-  # Plot all B sites (grey)
-  geom_sf(data = therm_site_sf_B, color = "grey70", size = 2, alpha = 0.7) +
-  
-  # Plot selected 5 sites with circles showing average daily range
-  geom_sf(data = therm_with_temp,
-          aes(color = avg_daily_range_c, size = avg_daily_range_c),
-          shape = 21,
-          fill = "white",
-          stroke = 1.2) +
-  
-  geom_label_repel(
-    data = therm_with_temp,
-    aes(label = site, geometry = geometry),
-    stat = "sf_coordinates",
-    size = 4,
-    nudge_y = 0.002,
-    box.padding = 0.4,
-    color = "white",
-    fill = "black"
-  ) +
-  
-  scale_color_viridis_c(option = "magma", name = "Avg Daily Range (°C)") +
-  scale_size(range = c(3, 6), guide = "none") +
-  
-  annotation_scale(location = "bl", width_hint = 0.3, text_col = "white", line_col = "white", tick_col = "white") +
-  annotation_north_arrow(location = "tl", which_north = "true",
-                         style = north_arrow_fancy_orienteering(text_col = "white", fill = c("white", "gray40"))) +
-  coord_sf(xlim = c(-149.94, -149.74), ylim = c(-17.615, -17.46), expand = FALSE) +
-  theme_minimal(base_size = 12) +
-  theme(
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.title = element_blank(),
-    plot.margin = margin(10, 10, 10, 10),
-    plot.title = element_text(face = "bold", size = 14, color = "white"),
-    legend.position = "right",
-    legend.text = element_text(color = "white"),
-    legend.title = element_text(color = "white")
-  ) +
-  ggtitle("Average Daily Temperature Range at Selected Thermistor Sites")
-
-# 👇 This line actually prints it
-print(p)
-
-
-
 ###############################attempt 2
 
 p <- ggplot() +
@@ -231,7 +116,7 @@ p <- ggplot() +
   layer_spatial(moorea_basemap) +
   
   # All B sites (gray points for context)
-  geom_sf(data = therm_site_sf_B, color = "grey70", size = 2, alpha = 0.7) +
+  geom_sf(data = therm_site_sf_B, color = "white", size = 1.5, alpha = 0.7) +
   
   # Five selected sites — color fill = average daily range
   geom_sf(
@@ -257,7 +142,7 @@ p <- ggplot() +
   
   # Color scale + legend
   scale_fill_viridis_c(
-    option = "magma",
+    option = "plasma",
     name = "Avg Daily Range (°C)",
     guide = guide_colorbar(
       barheight = unit(80, "pt"),
@@ -285,9 +170,9 @@ p <- ggplot() +
     plot.margin = margin(10, 10, 10, 10),
     plot.title = element_text(face = "bold", size = 14, color = "white"),
     legend.position = "right",
-    legend.text = element_text(color = "white"),
-    legend.title = element_text(color = "white"),
-    legend.background = element_rect(fill = "gray20", color = NA)
+    legend.text = element_text(color = "black"),
+    legend.title = element_text(color = "black"),
+    legend.background = element_rect(fill = "white", color = NA)
   ) +
   ggtitle("Average Daily Temperature Range at Selected Thermistor Sites")
 
