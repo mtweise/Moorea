@@ -168,7 +168,7 @@ p <- ggplot() +
     panel.grid.minor = element_blank(),
     axis.title = element_blank(),
     plot.margin = margin(10, 10, 10, 10),
-    plot.title = element_text(face = "bold", size = 14, color = "white"),
+    plot.title = element_text( size = 14, color = "black"),
     legend.position = "right",
     legend.text = element_text(color = "black"),
     legend.title = element_text(color = "black"),
