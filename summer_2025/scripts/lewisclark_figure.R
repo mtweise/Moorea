@@ -178,3 +178,280 @@ p <- ggplot() +
 
 # Print the map
 print(p)
+
+
+####################
+#attempt to fix legend
+
+p <- ggplot() +
+  # Basemap
+  layer_spatial(moorea_basemap) +
+  
+  # All B sites (gray points for context)
+  geom_sf(
+    data = therm_site_sf_B,
+    aes(color = "Other existing thermistor sites"),
+    size = 1.5,
+    alpha = 0.7
+  ) +
+  
+  # Five selected sites — color fill = average daily range
+  geom_sf(
+    data = therm_with_temp,
+    aes(fill = avg_daily_range_c),
+    shape = 21,
+    color = "white",
+    size = 4,
+    stroke = 1.2
+  ) +
+  
+  # Site labels
+  geom_label_repel(
+    data = therm_with_temp,
+    aes(label = site, geometry = geometry),
+    stat = "sf_coordinates",
+    size = 4,
+    nudge_y = 0.002,
+    box.padding = 0.4,
+    color = "white",
+    fill = "black"
+  ) +
+  
+  # Color scale for temperature
+  scale_fill_viridis_c(
+    option = "plasma",
+    name = "Avg Daily Range (°C)",
+    guide = guide_colorbar(
+      barheight = unit(50, "pt"),
+      barwidth  = unit(6, "pt"),
+      title.position = "top",
+      title.hjust = 0.5
+    )
+  ) +
+  
+  # Manual color legend for gray points
+  scale_color_manual(
+    name = "",
+    values = c("Other existing thermistor sites" = "gray80")
+  ) +
+  
+  annotation_scale(location = "bl", width_hint = 0.3, text_col = "white", line_col = "white") +
+  annotation_north_arrow(
+    location = "tl", which_north = "true",
+    style = north_arrow_fancy_orienteering(
+      text_col = "white", fill = c("white", "gray40")
+    )
+  ) +
+  
+  coord_sf(xlim = c(-149.94, -149.74), ylim = c(-17.615, -17.46), expand = FALSE) +
+  
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.title = element_blank(),
+    plot.margin = margin(10, 10, 10, 10),
+    plot.title = element_text(size = 14, color = "black"),
+    legend.position = c(0.99, 0.04),
+    legend.justification = c("right", "bottom"),
+    legend.text = element_text(color = "black", size = 8),     # smaller text
+    legend.title = element_text(color = "black", size = 9),    # smaller title
+    legend.key.size = unit(5, "pt"),        # shrink legend keys
+    legend.key.height = unit(8, "pt"),      # shrink colorbar height
+    legend.background = element_rect(fill = "white", color = NA),
+    legend.spacing.y = unit(1, "pt"),            # reduce vertical space between keys
+    legend.spacing.x = unit(1, "pt"),            # reduce horizontal space
+    legend.margin = margin(t = 2, r = 2, b = 2, l = 2), # tighter box
+  ) +
+  ggtitle("Average Daily Temperature Range at Selected Thermistor Sites")
+
+print(p)
+
+
+########################
+#combine legends
+
+p <- ggplot() +
+  # Basemap
+  layer_spatial(moorea_basemap) +
+  
+  # All B sites (gray points for context)
+  geom_sf(
+    data = therm_site_sf_B,
+    aes(color = "Other existing thermistor sites"),
+    size = 1.5,
+    alpha = 0.7
+  ) +
+  
+  # Five selected sites — color fill = average daily range
+  geom_sf(
+    data = therm_with_temp,
+    aes(fill = avg_daily_range_c, color = "Selected thermistor sites"),
+    shape = 21,
+    size = 4,
+    stroke = 1.2
+  ) +
+  
+  # Site labels
+  geom_label_repel(
+    data = therm_with_temp,
+    aes(label = site, geometry = geometry),
+    stat = "sf_coordinates",
+    size = 4,
+    nudge_y = 0.002,
+    box.padding = 0.4,
+    color = "white",
+    fill = "black"
+  ) +
+  
+  # Color scale (shared title)
+  scale_fill_viridis_c(
+    option = "plasma",
+    name = "Thermistor Sites\nAvg Daily Range (°C)",
+    guide = guide_colorbar(
+      barheight = unit(45, "pt"),
+      barwidth  = unit(6, "pt"),
+      title.position = "top",
+      title.hjust = 0.5
+    )
+  ) +
+  
+  # Manual color legend for point categories (shares title)
+  scale_color_manual(
+    name = "Thermistor Sites\nAvg Daily Range (°C)",
+    values = c(
+      "Other existing thermistor sites" = "gray80",
+      "Selected thermistor sites" = "white"
+    )
+  ) +
+  
+  annotation_scale(location = "bl", width_hint = 0.3, text_col = "white", line_col = "white") +
+  annotation_north_arrow(
+    location = "tl", which_north = "true",
+    style = north_arrow_fancy_orienteering(
+      text_col = "white", fill = c("white", "gray40")
+    )
+  ) +
+  
+  coord_sf(xlim = c(-149.94, -149.74), ylim = c(-17.615, -17.46), expand = FALSE) +
+  
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.title = element_blank(),
+    plot.margin = margin(10, 10, 10, 10),
+    plot.title = element_text(size = 14, color = "black"),
+    
+    # Compact bottom-right legend
+    legend.position = c(0.98, 0.05),
+    legend.justification = c("right", "bottom"),
+    legend.text = element_text(color = "black", size = 8),
+    legend.title = element_text(color = "black", size = 9),
+    legend.key.size = unit(5, "pt"),
+    legend.key.height = unit(6, "pt"),
+    legend.background = element_rect(fill = alpha("white", 0.7), color = NA),
+    legend.spacing.y = unit(1, "pt"),
+    legend.spacing.x = unit(1, "pt"),
+    legend.margin = margin(2, 2, 2, 2),
+    legend.box.margin = margin(-2, -2, -2, -2)
+  ) +
+  ggtitle("Average Daily Temperature Range at Selected Thermistor Sites")
+
+print(p)
+
+###########
+p <- ggplot() +
+  # Basemap
+  layer_spatial(moorea_basemap) +
+  
+  # All B sites (gray points for context)
+  geom_sf(
+    data = therm_site_sf_B,
+    aes(color = "Other existing thermistor sites"),
+    size = 1.5,
+    alpha = 0.7
+  ) +
+  
+  # Five selected sites — color fill = average daily range
+  geom_sf(
+    data = therm_with_temp,
+    aes(fill = avg_daily_range_c),
+    shape = 21,
+    color = "white",
+    size = 4,
+    stroke = 1.2
+  ) +
+  
+  # Site labels
+  geom_label_repel(
+    data = therm_with_temp,
+    aes(label = site, geometry = geometry),
+    stat = "sf_coordinates",
+    size = 4,
+    nudge_y = 0.002,
+    box.padding = 0.4,
+    color = "white",
+    fill = "black"
+  ) +
+  
+  # Color scale for temperature
+  scale_fill_viridis_c(
+    option = "plasma",
+    name = "Avg Daily Range (°C)",
+    guide = guide_colorbar(
+      barheight = unit(50, "pt"),
+      barwidth  = unit(6, "pt"),
+      title.position = "top",
+      title.hjust = 0.5
+    )
+  ) +
+  
+  # Manual color legend for gray points
+  scale_color_manual(
+    name = "",
+    values = c("Other existing thermistor sites" = "gray30")
+  ) +
+  
+  annotation_scale(location = "bl", width_hint = 0.3, text_col = "white", line_col = "white") +
+  annotation_north_arrow(
+    location = "tl", which_north = "true",
+    style = north_arrow_fancy_orienteering(
+      text_col = "white", fill = c("white", "gray40")
+    )
+  ) +
+  
+  coord_sf(xlim = c(-149.94, -149.74), ylim = c(-17.615, -17.46), expand = FALSE) +
+  
+  
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.title = element_blank(),
+    plot.margin = margin(10, 10, 10, 10),
+    plot.title = element_text(size = 14, color = "black"),
+    
+    # Legend positioning
+    legend.position = c(0.99, 0.03),
+    legend.justification = c("right", "bottom"),
+    
+    # Text and key sizes
+    legend.text = element_text(color = "black", size = 8),
+    legend.title = element_text(color = "black", size = 9),
+    legend.key.size = unit(4, "pt"),         # smaller keys
+    legend.key.width = unit(4, "pt"),        # thinner colorbar
+    legend.key.height = unit(6, "pt"),       # shorter colorbar
+    
+    # Reduce spacing between items
+    legend.spacing.y = unit(0.5, "pt"),
+    legend.spacing.x = unit(1, "pt"),
+    legend.margin = margin(t = 1, r = 1, b = 1, l = 1),
+    
+    # Semi-transparent background
+    legend.background = element_rect(fill = alpha("white", 0.7), color = NA)
+  ) +
+  ggtitle("Average Daily Temperature Range at Selected Thermistor Sites")
+
+print(p)
+
