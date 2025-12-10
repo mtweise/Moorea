@@ -12,7 +12,7 @@ library(dplyr)
 library(car)
 
 ##read in data
-concentrations_raw <- read_csv(here("summer_2025/data", "eDNA_extractions.csv")) |>
+concentrations_raw <- read_csv(here("summer_2025/data", "eDNA_extractions2.csv")) |>
   clean_names()
 
 #add morning/afternoon column
@@ -67,6 +67,7 @@ committee_meeting_fig <- ggplot(concentrations_clean %>% dplyr::filter(!is.na(Ti
     axis.text = element_text(size = 14)     # Tick labels
   )
 
+print(committee_meeting_fig)
 #ggsave(here("summer_2025/figures", "committee_fig.jpg"), committee_meeting_fig, dpi=500,
 #       width=10, height=5, unit="in")
 
@@ -382,7 +383,7 @@ library(dplyr)
 library(ggpubr)
 
 # --- Numeric x-axis for dodging Time within sites ---
-site_positions <- c(B32 = 1, B35 = 2, B01 = 3)
+site_positions <- c(B32 = 1, B35 = 2, B01 = 3, B06=4, B09=5, FW=6)
 
 concentrations_clean <- concentrations_clean %>%
   mutate(
@@ -450,7 +451,7 @@ committee_meeting_fig_final4 <- ggplot(
             size = 6) +
   
   # X-axis labeling
-  scale_x_continuous(breaks = 1:3, labels = c("B32", "B35", "B01")) +
+  scale_x_continuous(breaks = 1:6, labels = c("B32", "B35", "B01", "B06", "B09", "FW")) +
   scale_fill_manual(values = c("Morning" = "lightblue", "Afternoon" = "lightyellow")) +
   
   labs(x = "Site", y = "DNA concentration (ng/ul)", title = "DNA Yield by Site and Time of Day") +
@@ -462,5 +463,5 @@ committee_meeting_fig_final4 <- ggplot(
   )
 
 committee_meeting_fig_final4
-ggsave(here("summer_2025/figures", "committee_fig_final4.jpg"), committee_meeting_fig_final4, dpi=500,
-              width=10, height=7, unit="in")
+#ggsave(here("summer_2025/figures", "committee_fig_final4.jpg"), committee_meeting_fig_final4, dpi=500,
+ #             width=10, height=7, unit="in")
