@@ -92,12 +92,11 @@ Anova(lm_model, type = 3, white.adjust = TRUE)
 
 ######
 
-pairwise_t_test(
-  concentrations_clean3,
-  dna_yield ~ Time,
-  group.by = "collection_site",
-  p.adjust.method = "bonferroni"
-)
+#pairwise_t_test(
+#  concentrations_clean3,
+#  dna_yield ~ Time,
+#  group.by = "collection_site",
+#  p.adjust.method = "bonferroni")
 #why wont this work?
 
 
@@ -528,10 +527,61 @@ fig_jittered
 
 
 
+##################
+#plot without FW
+
+concentrations_noFW <- concentrations_clean3 %>%
+  dplyr::filter(collection_site != "FW")
 
 
+fig_jittered2 <- ggplot(
+  concentrations_noFW,
+  aes(
+    x = x_pos,
+    y = dna_yield,
+    fill = Time,
+    group = interaction(collection_site, Time)
+  )
+) +
+  geom_boxplot(width = 0.3, outlier.shape = NA) +
+  geom_point(position = position_jitter(width = 0.1),
+             size = 1, alpha = 0.7, color = "gray50") +
+  stat_summary(fun = mean, geom = "point",
+               shape = 20, size = 3, color = "black") +
+  geom_segment(
+    data = pairwise_results_sig %>% dplyr::filter(facet != "FW"),
+    aes(x = xmin, xend = xmax, y = y.position, yend = y.position),
+    inherit.aes = FALSE
+  ) +
+  geom_text(
+    data = pairwise_results_sig %>% dplyr::filter(facet != "FW"),
+    aes(x = (xmin + xmax)/2, y = y.position, label = label),
+    inherit.aes = FALSE,
+    vjust = -0.5,
+    size = 6
+  ) +
+  scale_x_continuous(
+    breaks = site_positions[names(site_positions) != "FW"],
+    labels = names(site_positions[names(site_positions) != "FW"])
+  ) +
+  scale_fill_manual(values = c("Morning" = "lightblue",
+                               "Afternoon" = "lightyellow")) +
+  labs(
+    x = "Site",
+    y = "DNA Yield (ng/uL)",
+    title = "DNA Yield by Site and Time of Day"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 16),
+    axis.text = element_text(size = 14),
+    legend.position = "none"
+  )
 
 
+fig_jittered2
+#ggsave(here("summer_2025/figures", "extractions_Bsites.jpg"), fig_jittered2, dpi=500,
+#                           width=10, height=7, unit="in")
 
 
 
