@@ -16,9 +16,11 @@ library(dplyr)
 library(ggpubr)
 library(WRS2)
 library(stringr)
+library(rstatix)
+library(sandwich)
 
 ##read in data
-concentrations_raw <- read_csv(here("summer_2025/data", "eDNA_extractions2.csv")) |>
+concentrations_raw <- read_csv(here("summer_2025/data", "eDNA_extractions_all.csv")) |>
   clean_names()
 
 #add morning/afternoon column
@@ -35,13 +37,12 @@ concentrations_clean <- concentrations_raw %>%
 concentrations_clean2 <- na.omit(concentrations_clean)
 
 #remove FW
-concentrations_clean3 <- concentrations_clean2 %>%
-  filter(collection_site != "FW")
+#concentrations_clean3 <- concentrations_clean2 %>%
+#  filter(collection_site != "FW")
 
 
 concentrations_clean3 <- concentrations_clean2 %>%
-  mutate(collection_site = str_trim(as.character(collection_site))) %>%
-  filter(collection_site != "FW")
+  mutate(collection_site = str_trim(as.character(collection_site))) 
 
 
 #check ANOVA assumptions (chris levene's test)
@@ -76,14 +77,13 @@ welch_anova_test(dna_yield ~ collection_site * Time, data = concentrations_clean
 
 
 
-robust_model <- t2way(dna_yield ~ collection_site * Time,
-                      data = concentrations_clean3)
+#robust_model <- t2way(dna_yield ~ collection_site * Time,
+#                      data = concentrations_clean3)
 
-robust_model
+#robust_model
 #why wont this work?
 
-library(car)
-library(sandwich)
+
 
 lm_model <- lm(dna_yield ~ collection_site * Time, data = concentrations_clean3)
 
@@ -91,7 +91,6 @@ Anova(lm_model, type = 3, white.adjust = TRUE)
 
 
 ######
-library(rstatix)
 
 pairwise_t_test(
   concentrations_clean3,
@@ -99,11 +98,9 @@ pairwise_t_test(
   group.by = "collection_site",
   p.adjust.method = "bonferroni"
 )
+#why wont this work?
 
 
-
-library(dplyr)
-library(rstatix)
 
 # Split by site and run pairwise t-tests
 pairwise_results <- concentrations_clean3 %>%
@@ -515,7 +512,7 @@ fig_jittered <- ggplot(concentrations_clean3, aes(x = x_pos, y = dna_yield, fill
   
   labs(
     x = "Site",
-    y = "DNA Yield",
+    y = "DNA Yield (ng/uL)",
     title = "DNA Yield by Site and Time of Day"
   ) +
   theme_minimal() +
@@ -526,7 +523,7 @@ fig_jittered <- ggplot(concentrations_clean3, aes(x = x_pos, y = dna_yield, fill
   )
 
 fig_jittered
-#ggsave(here("summer_2025/figures", "extractions_fig1.jpg"), fig_jittered, dpi=500,
+#ggsave(here("summer_2025/figures", "extractions_all.jpg"), fig_jittered, dpi=500,
 #                    width=10, height=7, unit="in")
 
 
