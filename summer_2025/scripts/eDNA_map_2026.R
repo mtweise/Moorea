@@ -71,8 +71,8 @@ gps_sf <- gps_sf %>%
     
     # assign colors based on year and time
     color = case_when(
-      year == "2026" & time < as_hms("12:00:00")  ~ "#00008B",  # dark blue for 2026 morning
-      year == "2026" & time >= as_hms("12:00:00") ~ "#FFD700",  # dark yellow for 2026 afternoon
+      year == "2026" & time < as_hms("12:00:00")  ~ "purple",  # dark blue for 2026 morning
+      year == "2026" & time >= as_hms("12:00:00") ~ "orange",  # dark yellow for 2026 afternoon
       time < as_hms("12:00:00")                       ~ "blue",  # normal blue for other years
       time >= as_hms("12:00:00")                      ~ "yellow" # normal yellow for other years
     )
